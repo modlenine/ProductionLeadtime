@@ -8,7 +8,7 @@
                 <div class="header-right">
 
                     <div class="user-notification">
-                        <div class="dropdown">
+                        <!-- <div class="dropdown">
                             <a class="dropdown-toggle no-arrow" href="#" role="button" data-toggle="dropdown">
                                 <i class="icon-copy dw dw-notification"></i>
                                 <div id="notify-section" style="display:none;">
@@ -25,20 +25,19 @@
                                 </div>
                             </div>
 
-                        </div>
+                        </div> -->
                     </div>
                     <div class="user-info-dropdown">
                         <div class="dropdown">
                             <a class="dropdown-toggle" href="#" role="button" data-toggle="dropdown">
                                 <span class="user-icon">
-                                    <img class="avataUser" src="#" alt="">
+                                    <img :src="userImage" alt="">
                                 </span>
-                                <span class="user-name">&nbsp;TEST</span>
+                                <span class="user-name">{{userFullname}}</span>
                             </a>
                             
                             <div class="dropdown-menu dropdown-menu-right dropdown-menu-icon-list">
-                                <router-link to="/userprofile" class="dropdown-item" id="logoutBtn" href="#"><i class="dw dw-support-1"></i>ข้อมูลผู้ใช้</router-link>
-                                <a class="dropdown-item" id="logoutBtn" href="javascript:void(0)"><i class="dw dw-logout"></i>ลงชื่อออก</a>
+                                <a class="dropdown-item" id="logoutBtn" href="#"><i class="dw dw-logout"></i>ลงชื่ออก</a>
                             </div>
                         </div>
                     </div>
@@ -48,10 +47,10 @@
 
             <div class="left-side-bar">
                 <div class="brand-logo">
-                    <a href="/">
+                    <router-link to='/'>
                         <!-- <img src="production_lead_time.png" alt="" class="light-logo"> -->
                         <span style="font-size:28px;color:#ef476f;"><b>PD Leadtime</b></span>
-                    </a>
+                    </router-link>
                     <div class="close-sidebar" data-toggle="left-sidebar-close">
                         <i class="ion-close-round"></i>
                     </div>
@@ -88,27 +87,59 @@
 </template>
 
 <script>
-// import $ from 'jquery';
+import $ from 'jquery';
 // import Swal from 'sweetalert2'
 // import axios from 'axios'
 export default {
     name:'Header',
     props:[
-
+        'userDataProps'
     ],
     data() {
         return {
-
+            url:this.getUrl(),
+            userImage:'',
+            userFullname:'',
+            resultUserData:[],
         }
     },
     created() {
-       
+        this.resultUserData = this.userDataProps;
     },
     mounted() {
-     
+     const proxy = this;
+        this.getUserData();
+        console.log(this.resultUserData);
+        console.log('Public path'+process.env.NODE_ENV);
+
+        $('#logoutBtn').click(function(){
+            localStorage.removeItem('userData');
+            location.href = proxy.url+'intsys/pdl/';
+        });
+
+        // $(document).on('click' , '.header-left' , function(){
+        //     $('.left-side-bar').addClass('open');
+        //     $('.mobile-menu-overlay').addClass('show');
+        // });
+
+        // $(document).on('click' , '.close-sidebar' , function(){
+        //     $('.left-side-bar').removeClass('open');
+        //     $('.mobile-menu-overlay').removeClass('show');
+        // });
+
+        // $(document).on('click' , '.menu' , function(){
+        //     $('.left-side-bar').removeClass('open');
+        //     $('.mobile-menu-overlay').removeClass('show');
+        // });
     },
     methods: {
+        getUserData(){
+            if(this.userDataProps != null){
+                this.userImage = 'https://intranet.saleecolour.com/intsys/usermanagement/uploads/'+this.resultUserData.file_img;
+                this.userFullname = this.resultUserData.Fname+' '+this.resultUserData.Lname;
+            }
 
+        },
     },
 }
 </script>
