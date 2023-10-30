@@ -2,36 +2,37 @@
   <div>
 
     <div style="overflow-x:auto;">
-    <table id="dataMachinePlan" class="table table-striped table-bordered mt-3" cellspacing="0" style="width:3700px">
+    <table id="dataMachinePlan" class="table table-striped table-bordered mt-3" cellspacing="0" style="width:4000px">
         <thead>
             <tr>
-            <th>PD</th>
-            <th>Mix</th>
-            <th>Extrude</th>
-            <th>Separate</th>
-            <th>Company</th>
-            <th>Work type</th>
-            <th>Item No</th>
-            <th>Batch No</th>
-            <th>QTY</th>
-            <th>Start ใบเบิก</th>
-            <th>Start ใบเบิก > จอง Lot</th>
-            <th>จอง Lot</th>
-            <th>จอง Lot > จ่ายของ</th>
-            <th>จ่ายของ</th>
-            <th>จ่ายของ > จัดเตรียม</th>
-            <th>จัดเตรียม</th>
-            <th>Mixer</th>
-            <th>Mix Leadtime</th>
-            <th>Mix Waittime</th>
-            <th>Next Station Waittime</th>
-            <th>Extrude</th>
-            <th>Ext Leadtime</th>
-            <th>Ext Waittime</th>
-            <th>Next Station Waittime</th>
-            <th>Separate</th>
-            <th>Sep Leadtime</th>
-            <th>Sep Waittime</th>
+              <th style="width:120px;">PD</th>
+              <th style="width:120px;">Mix</th>
+              <th style="width:120px;">Extrude</th>
+              <th style="width:120px;">Separate</th>
+              <th style="width:80px;">Company</th>
+              <th>Work type</th>
+              <th>Item No</th>
+              <th style="width:120px;">Batch No</th>
+              <th>QTY</th>
+              <th style="width:120px;">Start ใบเบิก</th>
+              <th style="width:180px;">Startใบเบิก -> จองLot</th>
+              <th style="width:120px;">จองLot</th>
+              <th style="width:180px;">จองLot -> จ่ายของเสร็จ</th>
+              <th style="width:120px;">จ่ายของเสร็จ</th>
+              <th style="width:220px;">จ่ายของเสร็จ -> จัดเตรียมเสร็จ</th>
+              <th style="width:120px;">จัดเตรียมเสร็จ</th>
+              <th style="width:180px;">จัดเตรียมเสร็จ -> Mixer</th>
+              <th style="width:120px;">Mixer</th>
+              <th>Mix Leadtime</th>
+              <th>Mix Waittime</th>
+              <th>Next Station Waittime</th>
+              <th style="width:120px;">Extrude</th>
+              <th>Ext Leadtime</th>
+              <th>Ext Waittime</th>
+              <th>Next Station Waittime</th>
+              <th style="width:120px;">Separate</th>
+              <th>Sep Leadtime</th>
+              <th>Sep Waittime</th>
             </tr>
         </thead>
         <tbody v-if="this.items !== 0">
@@ -55,6 +56,7 @@
                 <td>{{ item.procureDocDateTime }}</td>
                 <td>{{ item.leadtimeProcureToProcuredoneDecimal }}<br>{{ item.leadtimeProcureToProcuredone }}</td>
                 <td>{{ item.procureDoneDocDateTime }}</td>
+                <td>{{item.procureDoneDocTomixStartDateDecimal}}<br>{{item.procureDoneDocTomixStartDate}}</td>
                 <td>{{item.mixStartDate}}</td>
                 <td>{{ item.dataMixLeadtime }}<br>{{ item.dataMixLeadtime2 }}</td>
                 <td>{{ item.dataMixWaitTime }}<br>{{ item.dataMixWaitTime2 }}</td>

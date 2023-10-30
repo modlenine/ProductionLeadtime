@@ -48,9 +48,9 @@
 
             <div class="left-side-bar">
                 <div class="brand-logo">
-                    <a href="#">
-                        <img src="production_lead_time.png" alt="" class="light-logo">
-                        <!-- <span style="font-size:28px;color:#ef476f;"><b>PD Leadtime</b></span> -->
+                    <a href="/">
+                        <!-- <img src="production_lead_time.png" alt="" class="light-logo"> -->
+                        <span style="font-size:28px;color:#ef476f;"><b>PD Leadtime</b></span>
                     </a>
                     <div class="close-sidebar" data-toggle="left-sidebar-close">
                         <i class="ion-close-round"></i>
