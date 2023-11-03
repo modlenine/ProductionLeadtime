@@ -2,7 +2,7 @@
   <div>
 
     <div style="overflow-x:auto;">
-    <table id="dataMachinePlan" class="table table-striped table-bordered mt-3" cellspacing="0" style="width:4000px">
+    <table id="dataMachinePlan" class="table table-striped table-bordered mt-3" cellspacing="0" style="width:4800px">
         <thead>
             <tr>
               <th style="width:120px;">PD</th>
@@ -33,6 +33,10 @@
               <th style="width:120px;">Separate</th>
               <th>Sep Leadtime</th>
               <th>Sep Waittime</th>
+              <th>ผลิตเสร็จ</th>
+              <th>ผลิตเสร็จ -> ออกGR</th>
+              <th>ออกGR</th>
+              <th>Confirm Ship Date</th>
             </tr>
         </thead>
         <tbody v-if="this.items !== 0">
@@ -68,6 +72,10 @@
                 <td>{{item.sepStartDate}}</td>
                 <td>{{ item.dataSepLeadtime }}<br>{{ item.dataSepLeadtime2 }}</td>
                 <td>{{ item.dataSepWaitTime }}<br>{{ item.dataSepWaitTime2 }}</td>
+                <td>{{ item.production_completedDate }}</td>
+                <td>{{ item.productionCompToGrDecimal }}<br>{{ item.productionCompToGr }}</td>
+                <td>{{ item.grDatetime }}</td>
+                <td>{{ item.confirmshippingdate }}</td>
             </tr>
         </tbody>
 
@@ -96,10 +104,10 @@
       <p class="mt-2">
         <span><b>Total Item : </b>{{totalItem}}</span>&nbsp;&nbsp;<span><b>Total Page : </b>{{totalPages}}</span>
       </p>
-      <p>
+      <!-- <p>
         <span id="showState"></span><br>
         <span>{{this.$store.state.filterInput.worktype}}</span>
-      </p>
+      </p> -->
     </div>
 
   </div>
