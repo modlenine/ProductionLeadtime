@@ -214,6 +214,8 @@ export default {
             a.click();
             window.URL.revokeObjectURL(url);
 
+            // console.log(JSON.parse(data));
+
           },
         });
       }
