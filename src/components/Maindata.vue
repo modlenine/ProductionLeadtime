@@ -2,13 +2,13 @@
   <div>
 
     <div style="overflow-x:auto;">
-    <table id="dataMachinePlan" class="table table-striped table-bordered mt-3" cellspacing="0" style="width:4800px">
+    <table id="dataMachinePlan" class="table table-striped table-bordered mt-3" cellspacing="0" style="width:5000px">
         <thead>
             <tr>
               <th style="width:120px;">PD</th>
-              <th style="width:120px;">Mix</th>
-              <th style="width:120px;">Extrude</th>
-              <th style="width:120px;">Separate</th>
+              <th style="width:130px;">Work Center 10</th>
+              <th style="width:130px;">Work Center 20</th>
+              <th style="width:130px;">Work Center 30</th>
               <th style="width:80px;">Company</th>
               <th>Work type</th>
               <th>Item No</th>
@@ -21,18 +21,18 @@
               <th style="width:120px;">จ่ายของเสร็จ</th>
               <th style="width:220px;">จ่ายของเสร็จ -> จัดเตรียมเสร็จ</th>
               <th style="width:120px;">จัดเตรียมเสร็จ</th>
-              <th style="width:180px;">จัดเตรียมเสร็จ -> Mixer</th>
-              <th style="width:120px;">Mixer</th>
-              <th>Mix Leadtime</th>
-              <th>Mix Waittime</th>
+              <th style="width:180px;">จัดเตรียมเสร็จ -> Work Center 10</th>
+              <th style="width:130px;">Work Center 10</th>
+              <th>Work Center 10 Leadtime</th>
+              <th>Work Center 10 Waittime</th>
               <th>Next Station Waittime</th>
-              <th style="width:120px;">Extrude</th>
-              <th>Ext Leadtime</th>
-              <th>Ext Waittime</th>
+              <th style="width:130px;">Work Center 20</th>
+              <th>Work Center 20 Leadtime</th>
+              <th>Work Center 20 Waittime</th>
               <th>Next Station Waittime</th>
-              <th style="width:120px;">Separate</th>
-              <th>Sep Leadtime</th>
-              <th>Sep Waittime</th>
+              <th style="width:130px;">Work Center 30</th>
+              <th>Work Center 30 Leadtime</th>
+              <th>Work Center 30 Waittime</th>
               <th>ผลิตเสร็จ</th>
               <th>ผลิตเสร็จ -> ออกGR</th>
               <th>ออกGR</th>
@@ -349,5 +349,9 @@ export default {
   }
   .notNormaltype{
     background-color:#00CCFF !important;
+  }
+  th {
+    vertical-align: middle !important;
+    text-align: center;
   }
 </style>
