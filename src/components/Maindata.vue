@@ -1,7 +1,7 @@
 <template>
   <div>
 
-    <div style="overflow-x:auto;">
+    <div ref="scrollContainer" style="overflow-x:auto;">
       <table id="dataMachinePlan" class="table table-bordered mt-3" cellspacing="0" style="width:5000px">
         <thead>
           <tr>
@@ -50,7 +50,7 @@
               <span style="font-size:11px">(เวลาที่สูญเสียในแต่ละรอบรวมกัน)</span>
             </th>
             <th>ผลิตเสร็จ</th>
-            <th>ผลิตเสร็จ<br>ถึง<br>WH Post GR</th>
+            <th>ผลิตเสร็จ<br>ถึง<br>PD Create GR</th>
             <th>PD Create GR<br>
               <span style="font-size:11px">(ใบแรก)</span>
             </th>
@@ -65,8 +65,8 @@
             <tr :key="item.Prodid" :class="{
               'bgNextStationFail': changeTrcolor(item.nextStationFail, item.resultCheckAdjust) === 'special',
               'notNormaltype': changeTrcolor(item.nextStationFail, item.resultCheckAdjust) === 'adjust_rerun',
-              'cursor-pointer': item.resultCheckAdjust === 'Special'
-            }" @click="item.resultCheckAdjust == 'Special' && toggleSubRow(item.Prodid, item.dataAreaid)">
+              'cursor-pointer': true
+            }" @dblclick="toggleSubRow(item.Prodid, item.dataAreaid)">
               <td>
                 <b>PD : </b>{{ item.Prodid }}<br>
                 <b>Company : </b>{{ item.dataAreaid }}
@@ -111,7 +111,7 @@
 
             <!-- แถวย่อย (subtable) เฉพาะเมื่อเงื่อนไขตรง -->
             <!-- แถวย่อย Timeline -->
-            <tr v-if="item.resultCheckAdjust === 'Special' && showSubRow[item.Prodid]" :key="item.Prodid + '_timeline'">
+            <tr v-if="showSubRow[item.Prodid]" :key="item.Prodid + '_timeline'">
               <td colspan="30" style="background-color: #f2f2f2; padding: 20px;">
                 <table>
                   <thead class="timeline-grid" ref="timeline">
@@ -136,21 +136,27 @@
                     </tr>
                   </tbody> -->
                   <tbody>
-  <template v-for="(rowArrs, dateStr) in groupByDate(subDataMap[item.Prodid])">
-    <tr v-for="(rowArr, i) in rowArrs" :key="dateStr+'-'+i">
-      <td v-if="i===0" class="date-label" :rowspan="rowArrs.length">{{ dateStr }}</td>
-      <td v-else style="display:none"></td>
-      <td colspan="24" style="position: relative; min-height: 24px;">
-        <div v-for="row in rowArr" :key="row.OpeId+row.TransDateFormTime"
-          class="timeline-block"
-          :style="[getBlockStyle(row), getOpelColor(row.OpeNum)]"
-          :title="row.OpeId + ' | ' + formatTime(row.TransDateFormTime) + ' - ' + formatTime(row.TransDateToTime)">
-          {{ row.OpeId }} : {{ formatTime(row.TransDateFormTime) }} - {{ formatTime(row.TransDateToTime) }}
-        </div>
-      </td>
-    </tr>
-  </template>
-</tbody>
+                    <template v-for="(rowArrs, dateStr, dayIdx) in groupByDate(subDataMap[item.Prodid])">
+                      <tr 
+                        v-for="(rowArr, i) in rowArrs" 
+                        :key="dateStr + '-' + i"
+                        :class="getDayColorClass(dateStr, dayIdx)"
+                      >
+                        <td v-if="i === 0" class="date-label" :rowspan="rowArrs.length">{{ dateStr }}</td>
+                        <td v-else style="display:none"></td>
+                        <td colspan="24" style="position: relative; min-height: 24px;">
+                          <div v-for="row in rowArr" :key="row.OpeId + row.TransDateFormTime" class="timeline-block"
+                            :style="[getBlockStyle(row), getOpelColor(row.OpeNum)]"
+                            :title="'WC : ' + row.OpeNum + ' | ' + row.WrkctId + ' | ' + row.OpeId + '\n'
+                              + 'Run #' + row.Run + ' | ' + formatTime(row.TransDateFormTime) + ' - ' + formatTime(row.TransDateToTime) + '\n' + 'Remark : ' + row.Remark">
+                            WC {{ row.OpeNum }} | {{ row.WrkctId }} : {{ formatTime(row.TransDateFormTime) }} - {{
+                              formatTime(row.TransDateToTime) }}
+                          </div>
+                        </td>
+                      </tr>
+                    </template>
+                  </tbody>
+
                 </table>
               </td>
             </tr>
@@ -209,6 +215,11 @@ export default {
       subDataMap: {}, // เก็บข้อมูลย่อยแต่ละ prodid
 
       hourWidths: [], // ใช้เก็บความกว้างแต่ละชั่วโมง
+
+      //Scroll แนวนอน
+      isRightMouseDown: false,
+      startX: 0,
+      scrollLeft: 0,
     };
   },
   mounted() {
@@ -321,7 +332,13 @@ export default {
       $('input[name="ip-filter-wt[]"]:checked').prop('checked', false);
       proxy.getData();
     });
-
+    
+    //Scroll แนวนอน
+    const el = this.$refs.scrollContainer;
+    el.addEventListener('mousedown', this.handleMouseDown);
+    el.addEventListener('mousemove', this.handleMouseMove);
+    el.addEventListener('mouseup', this.handleMouseUp);
+    el.addEventListener('mouseleave', this.handleMouseUp);
 
   },
   methods: {
@@ -471,110 +488,51 @@ export default {
       });
     },
     groupByDate(data) {
-  if (!data) return {};
-  const map = {};
-  data.forEach(row => {
-    const dateStr = this.formatDate(row.TransDateFormTime);
-    if (!map[dateStr]) map[dateStr] = [];
-    map[dateStr].push([row]); // ใส่เป็น array เดี่ยว
-  });
-  return map;
-},
+      if (!data) return {};
+      const map = {};
+      data.forEach(row => {
+        const dateStr = this.formatDate(row.TransDateFormTime);
+        if (!map[dateStr]) map[dateStr] = [];
+        map[dateStr].push([row]); // ใส่เป็น array เดี่ยว
+      });
+      return map;
+    },
 
-getBlockStyle(row) {
-  const start = new Date(row.TransDateFormTime);
-  const end = new Date(row.TransDateToTime);
-  const startHour = start.getHours();
-  const startMin = start.getMinutes();
-  const endHour = end.getHours();
-  const endMin = end.getMinutes();
+    getBlockStyle(row) {
+      const start = new Date(row.TransDateFormTime);
+      const end = new Date(row.TransDateToTime);
+      const startHour = start.getHours();
+      const startMin = start.getMinutes();
+      const endHour = end.getHours();
+      const endMin = end.getMinutes();
 
-  let left = 0, width = 0;
+      let left = 0, width = 0;
 
-  for (let h = 0; h < startHour; h++) {
-    left += this.hourWidths[h] || 0;
-  }
-  let minWidth = this.hourWidths[startHour] ? this.hourWidths[startHour] / 60 : 0;
-  left += minWidth * startMin;
+      for (let h = 0; h < startHour; h++) {
+        left += this.hourWidths[h] || 0;
+      }
+      let minWidth = this.hourWidths[startHour] ? this.hourWidths[startHour] / 60 : 0;
+      left += minWidth * startMin;
 
-  if (startHour === endHour) {
-    width = ((endMin - startMin) * minWidth);
-  } else {
-    width += (60 - startMin) * minWidth;
-    for (let h = startHour + 1; h < endHour; h++) {
-      width += this.hourWidths[h] || 0;
-    }
-    let lastMinWidth = this.hourWidths[endHour] ? this.hourWidths[endHour] / 60 : 0;
-    width += endMin * lastMinWidth;
-  }
+      if (startHour === endHour) {
+        width = ((endMin - startMin) * minWidth);
+      } else {
+        width += (60 - startMin) * minWidth;
+        for (let h = startHour + 1; h < endHour; h++) {
+          width += this.hourWidths[h] || 0;
+        }
+        let lastMinWidth = this.hourWidths[endHour] ? this.hourWidths[endHour] / 60 : 0;
+        width += endMin * lastMinWidth;
+      }
 
-  return {
-    left: left + 'px',
-    width: width + 'px',
-    top: '4px', // ไม่ต้อง stack top index แล้ว
-    position: 'absolute'
-  };
-},
+      return {
+        left: left + 'px',
+        width: width + 'px',
+        top: '4px', // ไม่ต้อง stack top index แล้ว
+        position: 'absolute'
+      };
+    },
 
-
-    // getBlockStyle(row, index, allRows) {
-    //   // เวลาต้น-จบ
-    //   const start = new Date(row.TransDateFormTime);
-    //   const end = new Date(row.TransDateToTime);
-
-    //   const startHour = start.getHours();
-    //   const startMin = start.getMinutes();
-    //   const endHour = end.getHours();
-    //   const endMin = end.getMinutes();
-
-    //   // ความกว้างรวมของแต่ละชม.
-    //   let left = 0, width = 0;
-
-    //   // คำนวณ left (px) = ผลรวม width ของ hour ก่อนหน้า + (width เฉลี่ยต่อ 1 นาที x นาที)
-    //   for (let h = 0; h < startHour; h++) {
-    //     left += this.hourWidths[h] || 0;
-    //   }
-    //   // เฉลี่ย 1 นาทีใน hour นี้กี่ px
-    //   let minWidth = this.hourWidths[startHour] ? this.hourWidths[startHour] / 60 : 0;
-    //   left += minWidth * startMin;
-
-    //   // คำนวณ width
-    //   // (กรณีข้ามหลายชม. เช่น 09:30 - 13:45)
-    //   if (startHour === endHour) {
-    //     width = ((endMin - startMin) * minWidth);
-    //   } else {
-    //     // นาทีของชั่วโมงเริ่มต้น
-    //     width += (60 - startMin) * minWidth;
-    //     // ชั่วโมงเต็มระหว่างนั้น
-    //     for (let h = startHour + 1; h < endHour; h++) {
-    //       width += this.hourWidths[h] || 0;
-    //     }
-    //     // นาทีของชั่วโมงสุดท้าย
-    //     let lastMinWidth = this.hourWidths[endHour] ? this.hourWidths[endHour] / 60 : 0;
-    //     width += endMin * lastMinWidth;
-    //   }
-
-    //   // Stack top เช่นเดิม
-    //   let topIndex = 0;
-    //   for (let j = 0; j < index; j++) {
-    //     const other = allRows[j];
-    //     const oStart = new Date(other.TransDateFormTime);
-    //     const oEnd = new Date(other.TransDateToTime);
-    //     if (
-    //       start < oEnd &&
-    //       end > oStart
-    //     ) {
-    //       topIndex++;
-    //     }
-    //   }
-
-    //   return {
-    //     left: left + 'px',
-    //     width: width + 'px',
-    //     top: `${topIndex * 26}px`,
-    //     position: 'absolute'
-    //   };
-    // },
 
     getOpelColor(openum) {
       const colors = {
@@ -597,6 +555,35 @@ getBlockStyle(row) {
           this.hourWidths.push(100); // fallback เผื่อหาไม่ได้
         }
       }
+    },
+
+    getDayColorClass(dateStr, dayIdx) {
+      return dayIdx % 2 === 0 ? 'even-row' : 'odd-row';
+    },
+
+    //Scoll แนวนอน
+    handleMouseDown(e) {
+      if (e.button !== 0) return; // คลิกขวาเท่านั้น
+      e.preventDefault();
+      this.isRightMouseDown = true;
+      this.startX = e.pageX - this.$refs.scrollContainer.offsetLeft;
+      this.scrollLeft = this.$refs.scrollContainer.scrollLeft;
+      // ปิด context menu ขณะคลิกขวาค้างลาก
+      document.addEventListener('contextmenu', this.preventContextMenu, true);
+    },
+    handleMouseMove(e) {
+      if (!this.isRightMouseDown) return;
+      e.preventDefault();
+      const x = e.pageX - this.$refs.scrollContainer.offsetLeft;
+      const walk = (this.startX - x);
+      this.$refs.scrollContainer.scrollLeft = this.scrollLeft + walk;
+    },
+    handleMouseUp() {
+      this.isRightMouseDown = false;
+      document.removeEventListener('contextmenu', this.preventContextMenu, true);
+    },
+    preventContextMenu(e) {
+      e.preventDefault();
     },
 
 
@@ -623,7 +610,7 @@ th {
 }
 
 .cursor-pointer:hover {
-  background-color: #ad4a08 !important;
+  background-color: #dcdcdc !important;
 }
 
 .timeline-grid {
@@ -661,5 +648,26 @@ th {
   border-radius: 4px;
   white-space: nowrap;
   overflow: hidden;
+}
+
+.timeline-grid th:not(:first-child) {
+  width: 40px;
+  min-width: 40px;
+  max-width: 40px;
+  font-size: 12px;
+  padding-left: 3px;
+}
+
+.even-row td {
+  background: #ebebeb !important;   /* ฟ้าอ่อน */
+}
+.odd-row td {
+  background: #d1d1d1 !important;   /* เหลืองอ่อน */
+}
+
+/* Scroll แนวนอน */
+.scroll-dragging {
+  cursor: ew-resize !important;
+  user-select: none;
 }
 </style>

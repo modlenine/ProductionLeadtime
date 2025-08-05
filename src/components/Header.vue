@@ -3,7 +3,11 @@
         <div>
             <div class="header">
                 <div class="header-left">
-                    <div class="menu-icon dw dw-menu"></div>
+                    <div class="menu-icon bi bi-list"></div>
+                    <router-link to='/'>
+                        <!-- <img src="production_lead_time.png" alt="" class="light-logo"> -->
+                        <span style="font-size:28px;color:#ef476f;margin-left:20px;"><b>PD Leadtime</b></span>
+                    </router-link>
                 </div>
                 <div class="header-right">
 
@@ -144,6 +148,8 @@ export default {
 }
 </script>
 
-<style>
-
+<style scoped>
+.left-side-bar {
+  display: none !important;
+}
 </style>
